@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeckML Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { background: #141414; color: #c0c0c0; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 13px; }
+    #app { display: flex; flex-direction: column; height: 100vh; }
+
+    #header {
+      height: 42px; background: #0c0c0c; border-bottom: 1px solid #1e1e1e;
+      display: flex; align-items: center; padding: 0 18px; gap: 16px;
+      flex-shrink: 0; user-select: none;
+    }
+    .logo { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; color: #fff; letter-spacing: .02em; }
+    .logo em { color: #7B6CF8; font-style: normal; }
+    .vr { width: 1px; height: 14px; background: #252525; }
+    #deck-info { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #454545; }
+    #status { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #454545; transition: color .2s; }
+    #status.err { color: #e06c75; }
+
+    #body { display: flex; flex: 1; overflow: hidden; }
+    .pane-label {
+      height: 26px; background: #0f0f0f; border-bottom: 1px solid #1a1a1a;
+      display: flex; align-items: center; padding: 0 14px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: #333;
+      text-transform: uppercase; letter-spacing: .1em; flex-shrink: 0;
+    }
+
+    #editor-pane { width: 45%; flex-shrink: 0; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; overflow: hidden; }
+    #editor-wrap { flex: 1; overflow: hidden; }
+    .CodeMirror { height: 100% !important; font-family: 'IBM Plex Mono', Consolas, monospace !important; font-size: 13px !important; line-height: 1.75 !important; background: #1a1a1a !important; }
+    .CodeMirror-scroll { background: #1a1a1a; }
+    .CodeMirror-gutters { background: #161616 !important; border-right: 1px solid #1e1e1e !important; }
+    .CodeMirror-linenumber { color: #383838 !important; font-size: 11px; }
+    .CodeMirror-cursor { border-left-color: #7B6CF8 !important; }
+    .CodeMirror-selected { background: rgba(123,108,248,0.15) !important; }
+
+    #preview-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #141414; }
+    #preview-scroll { flex: 1; overflow-y: auto; padding: 18px 20px 32px; display: flex; flex-direction: column; gap: 18px; }
+
+    .slide-wrapper { display: flex; flex-direction: column; gap: 7px; }
+    .slide-meta { display: flex; align-items: center; gap: 5px; padding: 0 3px; flex-wrap: wrap; }
+    .s-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2e2e2e; min-width: 20px; }
+    .s-badge {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 1px 6px;
+      border-radius: 2px; letter-spacing: .04em;
+    }
+    .s-badge-dim    { color: #323232; border: 1px solid #222; }
+    .s-badge-align  { color: #4a7ca5; border: 1px solid rgba(74,124,165,0.3); }
+    .s-badge-trans  { color: #7B6CF8; border: 1px solid rgba(123,108,248,0.3); }
+
+    .slide-container { width: 100%; overflow: hidden; border-radius: 3px; box-shadow: 0 2px 24px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03); }
+    .slide-scaler { width: 1280px; height: 720px; transform-origin: top left; }
+    .slide-inner { width: 1280px; height: 720px; position: relative; overflow: hidden; }
+
+    .parse-error { background: rgba(224,108,117,.07); border: 1px solid rgba(224,108,117,.2); border-radius: 3px; padding: 18px 20px; color: #e06c75; font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: pre-wrap; line-height: 1.65; }
+    .empty-msg { padding: 48px 20px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #2d2d2d; }
+
+    #preview-scroll::-webkit-scrollbar { width: 4px; }
+    #preview-scroll::-webkit-scrollbar-track { background: transparent; }
+    #preview-scroll::-webkit-scrollbar-thumb { background: #262626; border-radius: 2px; }
+    #preview-scroll::-webkit-scrollbar-thumb:hover { background: #333; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <span class="logo">Deck<em>ML</em></span>
+    <div class="vr"></div>
+    <span id="deck-info">no deck loaded</span>
+    <span id="status"></span>
+  </div>
+  <div id="body">
+    <div id="editor-pane">
+      <div class="pane-label">XML Source</div>
+      <div id="editor-wrap"></div>
+    </div>
+    <div id="preview-pane">
+      <div class="pane-label">Preview</div>
+      <div id="preview-scroll">
+        <div id="preview"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/xml-fold.min.js"></script>
+<script>
+
+// ── Default XML ───────────────────────────────────────────────────────────────
+
+const DEFAULT_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<deck theme="dark">
+
+  <meta>
+    <title>Product Launch 2026</title>
+    <author>Jane Smith</author>
+  </meta>
+
+  <!-- h="center" v="middle" — classic title slide -->
+  <slide h="center" v="middle">
+    <h1>Product Launch 2026</h1>
+    <subtitle>A new era begins</subtitle>
+  </slide>
+
+  <!-- Section divider: vertically middled, accent underline on heading -->
+  <slide v="middle" transition="fade">
+    <h2 accent="true">Performance</h2>
+    <subtitle>The numbers that matter</subtitle>
+  </slide>
+
+  <!-- Stats in a flex row, heading centred -->
+  <slide v="middle" transition="slide">
+    <h2 h="center">By the numbers</h2>
+    <flex>
+      <stat value="£4.2M" label="Revenue"    trend="up"   />
+      <stat value="34%"   label="Growth YoY" trend="up"   />
+      <stat value="72"    label="NPS Score"  trend="flat" />
+    </flex>
+  </slide>
+
+  <!-- Standard content: heading with accent bar + bullet list -->
+  <slide>
+    <h2 accent="true">Key initiatives</h2>
+    <ul>
+      <li>Launched product line in 3 new markets</li>
+      <li>Reduced churn by 12% through onboarding improvements</li>
+      <li>Shipped mobile app v2.0 ahead of schedule</li>
+    </ul>
+  </slide>
+
+  <!-- Two columns via flex + col -->
+  <slide>
+    <h2 accent="true">Q4 review</h2>
+    <flex>
+      <col>
+        <h3>Wins</h3>
+        <ul type="check">
+          <li>Enterprise tier launched</li>
+          <li>API v2 stable</li>
+          <li>Onboarding redesigned</li>
+        </ul>
+      </col>
+      <col>
+        <h3>Q1 focus</h3>
+        <ul type="number">
+          <li>Expand to APAC</li>
+          <li>SOC 2 certification</li>
+          <li>Platform mobile app</li>
+        </ul>
+      </col>
+    </flex>
+  </slide>
+
+  <!-- Three columns, top-aligned, equal weights -->
+  <slide>
+    <h2 accent="true">Timeline</h2>
+    <flex v="top">
+      <col weight="1">
+        <h3>Q1</h3>
+        <p>Kick off APAC expansion and begin SOC 2 audit process.</p>
+      </col>
+      <col weight="1">
+        <h3>Q2</h3>
+        <p>Launch mobile platform. Complete certification by end of quarter.</p>
+      </col>
+      <col weight="1">
+        <h3>Q3</h3>
+        <p>Evaluate EMEA opportunity. Scale support team to match growth.</p>
+      </col>
+    </flex>
+  </slide>
+
+  <!-- Centred pull quote -->
+  <slide h="center" v="middle">
+    <quote author="Head of Product">
+      The best quarter we have ever shipped. The team executed flawlessly.
+    </quote>
+  </slide>
+
+  <!-- Code slide -->
+  <slide>
+    <h2 accent="true">New API endpoint</h2>
+    <code lang="typescript">
+const data = await api.query({
+  filter: 'active',
+  from:   '2025-10-01',
+  limit:  100,
+});
+
+console.log(data.results);
+    </code>
+  </slide>
+
+  <!-- Right-aligned outro -->
+  <slide h="right" v="middle">
+    <h1>Thank you</h1>
+    <subtitle>jane@example.com</subtitle>
+  </slide>
+
+</deck>`;
+
+// ── Themes ────────────────────────────────────────────────────────────────────
+
+const THEMES = {
+  dark: {
+    bg: '#111111', fg: '#ffffff', fg2: 'rgba(255,255,255,0.45)',
+    accent: '#7B6CF8', codeBg: '#18181f', codeFg: '#abb2bf',
+    border: 'rgba(255,255,255,0.08)', statBg: 'rgba(255,255,255,0.05)',
+    hFont: '"IBM Plex Sans", system-ui, sans-serif',
+    bFont: '"IBM Plex Sans", system-ui, sans-serif',
+    isLight: false,
+  },
+  minimal: {
+    bg: '#ffffff', fg: '#111111', fg2: '#888888',
+    accent: '#111111', codeBg: '#f4f4f4', codeFg: '#333333',
+    border: 'rgba(0,0,0,0.09)', statBg: '#f5f5f5',
+    hFont: 'Georgia, "Times New Roman", serif',
+    bFont: '"IBM Plex Sans", system-ui, sans-serif',
+    isLight: true,
+  },
+  corporate: {
+    bg: '#0F2644', fg: '#ffffff', fg2: '#6AADFF',
+    accent: '#6AADFF', codeBg: '#07192e', codeFg: '#cce5ff',
+    border: 'rgba(106,173,255,0.15)', statBg: 'rgba(106,173,255,0.08)',
+    hFont: '"IBM Plex Sans", system-ui, sans-serif',
+    bFont: '"IBM Plex Sans", system-ui, sans-serif',
+    isLight: false,
+  },
+  warm: {
+    bg: '#F5EFE7', fg: '#2C1A0E', fg2: '#7A5533',
+    accent: '#8B4513', codeBg: '#E8DDD0', codeFg: '#3d2010',
+    border: 'rgba(44,26,14,0.1)', statBg: 'rgba(139,69,19,0.07)',
+    hFont: 'Georgia, "Times New Roman", serif',
+    bFont: '"IBM Plex Sans", system-ui, sans-serif',
+    isLight: true,
+  },
+  bold: {
+    bg: '#E8FF00', fg: '#000000', fg2: '#333333',
+    accent: '#000000', codeBg: '#cce500', codeFg: '#000000',
+    border: 'rgba(0,0,0,0.15)', statBg: 'rgba(0,0,0,0.07)',
+    hFont: '"IBM Plex Sans", Impact, system-ui, sans-serif',
+    bFont: '"IBM Plex Sans", system-ui, sans-serif',
+    isLight: true,
+  },
+};
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+const esc = s => String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+const txt = el => el ? el.textContent.trim() : '';
+
+function dedent(str) {
+  const lines = str.split('\n');
+  while (lines.length && !lines[0].trim()) lines.shift();
+  while (lines.length && !lines[lines.length-1].trim()) lines.pop();
+  const min = Math.min(...lines.filter(l=>l.trim()).map(l=>l.match(/^(\s*)/)[1].length));
+  return lines.map(l=>l.slice(min)).join('\n');
+}
+
+const SKIP = new Set(['note','meta']);
+const isVis = el => el.nodeType === 1 && !SKIP.has(el.tagName.toLowerCase());
+const kids  = el => [...el.children].filter(isVis);
+
+// Read h="left|center|right" and v="top|middle|bottom" attributes.
+// Returns null if the attribute is absent or unrecognised.
+const hAttr = el => { const v = el.getAttribute('h'); return (v==='left'||v==='center'||v==='right') ? v : null; };
+const vAttr = el => { const v = el.getAttribute('v'); return (v==='top'||v==='middle'||v==='bottom') ? v : null; };
+
+// accent="true" (or any non-null value) enables the accent underline rule.
+const isAccent = el => el.getAttribute('accent') !== null;
+
+// ── Primitive renderers ───────────────────────────────────────────────────────
+
+function renderList(el, t) {
+  const type  = el.getAttribute('type') || 'bullet';
+  const items = [...el.querySelectorAll('li, item')];
+  if (!items.length) return '';
+  // Lists always render left-aligned regardless of slide text-align — centering
+  // bullet points looks wrong. Override here.
+  const rows = items.map((item, i) => {
+    let marker;
+    if (type === 'number') {
+      marker = `<span style="color:${t.accent};font-size:28px;font-weight:600;min-width:44px;flex-shrink:0;text-align:right;padding-right:6px;font-family:${t.hFont}">${i+1}.</span>`;
+    } else if (type === 'check') {
+      marker = `<span style="color:${t.accent};font-size:24px;min-width:44px;flex-shrink:0;text-align:center"">✓</span>`;
+    } else {
+      marker = `<span style="color:${t.accent};font-size:9px;min-width:44px;flex-shrink:0;text-align:center;padding-top:12px">●</span>`;
+    }
+    return `<div style="display:flex;align-items:baseline;line-height:1.45;text-align:left">
+      ${marker}<span style="font-size:28px">${esc(txt(item))}</span>
+    </div>`;
+  }).join('');
+  return `<div style="display:flex;flex-direction:column;gap:22px;text-align:left">${rows}</div>`;
+}
+
+function renderCode(el, t) {
+  const code = dedent(el.textContent);
+  return `<div style="background:${t.codeBg};border-radius:10px;padding:40px 44px;font-family:'IBM Plex Mono',Consolas,monospace;font-size:22px;line-height:1.65;color:${t.codeFg};white-space:pre;text-align:left;border:1px solid ${t.border};flex:1;min-height:0;overflow:hidden">${esc(code)}</div>`;
+}
+
+function renderQuote(el, t) {
+  const author = el.getAttribute('author') || '';
+  return `
+    <div style="display:flex;flex-direction:column;gap:20px;max-width:900px">
+      <div style="font-size:110px;color:${t.accent};line-height:.38;font-family:Georgia,serif;opacity:.4">"</div>
+      <div style="font-size:44px;font-weight:400;font-family:${t.hFont};line-height:1.5;color:${t.fg};font-style:italic">${esc(txt(el))}</div>
+      ${author ? `<div style="font-size:22px;color:${t.fg2};letter-spacing:.01em">— ${esc(author)}</div>` : ''}
+    </div>`;
+}
+
+function renderStatCard(el, t) {
+  const value = el.getAttribute('value') || '';
+  const label = el.getAttribute('label') || '';
+  const trend = el.getAttribute('trend') || '';
+  const trendMap = { up:['↑','#4ade80'], down:['↓','#f87171'], flat:['→',t.fg2] };
+  const [icon, color] = trendMap[trend] || [];
+  return `
+    <div style="background:${t.statBg};border-radius:14px;padding:44px 40px;display:flex;flex-direction:column;gap:14px;border:1px solid ${t.border};height:100%">
+      <div style="font-size:20px;color:${t.fg2};letter-spacing:.02em">${esc(label)}</div>
+      <div style="font-size:88px;font-weight:700;font-family:${t.hFont};line-height:1;letter-spacing:-.03em;color:${t.fg}">${esc(value)}</div>
+      ${icon ? `<div style="font-size:24px;color:${color};font-weight:500;margin-top:4px">${icon} ${esc(trend)}</div>` : ''}
+    </div>`;
+}
+
+function renderImage(el, t) {
+  const src     = el.getAttribute('src') || '';
+  const alt     = el.getAttribute('alt') || '';
+  const caption = el.getAttribute('caption') || '';
+  return `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <img src="${esc(src)}" alt="${esc(alt)}" style="max-width:100%;max-height:400px;object-fit:contain;border-radius:8px">
+      ${caption ? `<div style="font-size:20px;color:${t.fg2}">${esc(caption)}</div>` : ''}
+    </div>`;
+}
+
+// ── Flex renderer ─────────────────────────────────────────────────────────────
+//
+// <flex> = horizontal flex row. Attributes:
+//   h="left|center|right"  → justify-content on main axis
+//   v="top|middle|bottom"  → align-items on cross axis
+//   gap="N"                → gap in px (default 32)
+//   dividers="true"        → hairline between cols
+//
+// Children:
+//   <col weight="N" h="..." v="..."> — explicit columns.
+//   Any other element                — each becomes a flex:1 item.
+
+function renderFlex(el, t) {
+  const gap = el.getAttribute('gap') || '32';
+
+  const h = hAttr(el);
+  const v = vAttr(el);
+
+  const jc = h === 'center' ? 'center'
+           : h === 'right'  ? 'flex-end'
+           : 'flex-start';
+
+  const ai = v === 'middle' ? 'center'
+           : v === 'bottom' ? 'flex-end'
+           : v === 'top'    ? 'flex-start'
+           : 'stretch';
+
+  const flexStyle = `display:flex;gap:${gap}px;justify-content:${jc};align-items:${ai};`;
+
+  const colEls = [...el.querySelectorAll(':scope > col')];
+
+  if (colEls.length) {
+    const dividers = el.getAttribute('dividers') !== null;
+    const html = colEls.map((col, i) => {
+      const w      = parseFloat(col.getAttribute('weight') || '1');
+      const colH   = hAttr(col);
+      const colV   = vAttr(col);
+      const colJC  = colV === 'middle' ? 'justify-content:center;'
+                   : colV === 'bottom' ? 'justify-content:flex-end;'
+                   : '';
+      const border = (dividers && i < colEls.length - 1)
+                   ? `border-right:1px solid ${t.border};padding-right:${gap}px;margin-right:-${Math.floor(gap/2)}px;`
+                   : '';
+      const taStyle = colH ? `text-align:${colH};` : '';
+      const colKids = kids(col).map(c => renderEl(c, t)).join('');
+      return `<div style="flex:${w};min-width:0;display:flex;flex-direction:column;gap:24px;${taStyle}${colJC}${border}">${colKids}</div>`;
+    }).join('');
+    return `<div style="${flexStyle}">${html}</div>`;
+  }
+
+  // No <col> children — each direct child becomes a flex:1 item.
+  const directKids = kids(el);
+  const html = directKids.map(c => {
+    const tag = c.tagName.toLowerCase();
+    if (tag === 'stat') {
+      return `<div style="flex:1;min-width:0;display:flex;flex-direction:column">${renderStatCard(c, t)}</div>`;
+    }
+    return `<div style="flex:1;min-width:0">${renderEl(c, t)}</div>`;
+  }).join('');
+
+  return `<div style="${flexStyle}">${html}</div>`;
+}
+
+// ── Universal element renderer ────────────────────────────────────────────────
+//
+// h="left|center|right" overrides text-align for that element only.
+// accent="true" on h1/h2/h3 adds an underline in the theme accent colour.
+
+function renderEl(el, t) {
+  if (!el || el.nodeType !== 1) return '';
+  const tag = el.tagName.toLowerCase();
+  if (SKIP.has(tag)) return '';
+
+  const h       = hAttr(el);
+  const taStyle = h ? `text-align:${h};` : '';
+  const accentBar = isAccent(el)
+    ? `border-bottom:2px solid ${t.accent};padding-bottom:20px;`
+    : '';
+
+  switch (tag) {
+    case 'h1':
+      return `<div style="${taStyle}${accentBar}font-size:88px;font-weight:700;font-family:${t.hFont};line-height:1.05;letter-spacing:-.025em;color:${t.fg}">${esc(txt(el))}</div>`;
+
+    case 'h2':
+      return `<div style="${taStyle}${accentBar}font-size:56px;font-weight:700;font-family:${t.hFont};line-height:1.1;letter-spacing:-.015em;color:${t.fg}">${esc(txt(el))}</div>`;
+
+    case 'h3':
+      return `<div style="${taStyle}${accentBar}font-size:36px;font-weight:600;font-family:${t.hFont};line-height:1.25;color:${t.fg}">${esc(txt(el))}</div>`;
+
+    case 'subtitle':
+      return `<div style="${taStyle}font-size:28px;color:${t.fg2};line-height:1.5">${esc(txt(el))}</div>`;
+
+    case 'p':
+      return `<div style="${taStyle}font-size:26px;line-height:1.7;color:${t.fg}">${esc(txt(el))}</div>`;
+
+    case 'ul':
+      return renderList(el, t);
+
+    case 'code':
+      return renderCode(el, t);
+
+    case 'quote':
+      return `<div style="${taStyle}display:flex;flex-direction:column;align-items:inherit">${renderQuote(el, t)}</div>`;
+
+    case 'image':
+      return renderImage(el, t);
+
+    case 'divider':
+      return `<div style="height:1px;background:${t.border};flex-shrink:0;align-self:stretch"></div>`;
+
+    case 'stats': {
+      // Convenience wrapper: lays out <stat> children in a flex row
+      const statEls = [...el.querySelectorAll('stat')];
+      const cards = statEls.map(s =>
+        `<div style="flex:1;min-width:0;display:flex;flex-direction:column">${renderStatCard(s, t)}</div>`
+      ).join('');
+      return `<div style="display:flex;gap:24px;align-items:stretch">${cards}</div>`;
+    }
+
+    case 'stat':
+      // Standalone stat (outside <stats>) — fills its container
+      return renderStatCard(el, t);
+
+    case 'flex':
+      return renderFlex(el, t);
+
+    case 'col':
+      return ''; // only valid inside <flex>; handled there
+
+    default:
+      return '';
+  }
+}
+
+// ── Slide renderer ────────────────────────────────────────────────────────────
+//
+// <slide> attributes:
+//   h="left|center|right"  → text-align, cascades to all children
+//   v="top|middle|bottom"  → vertical position of the content block
+//   transition="..."       → animation into this slide
+//   bg="..."               → background colour override
+//   accent="..."           → accent colour override
+
+function renderSlide(slideEl, theme, index, total) {
+  const t = {
+    ...theme,
+    bg:     slideEl.getAttribute('bg')     || theme.bg,
+    accent: slideEl.getAttribute('accent') || theme.accent,
+  };
+
+  const h  = hAttr(slideEl);
+  const v  = vAttr(slideEl);
+  const ta = h || 'left';
+  const jc = v === 'bottom' ? 'flex-end'
+           : v === 'middle' ? 'center'
+           : 'flex-start';
+
+  const content  = kids(slideEl).map(c => renderEl(c, t)).join('');
+  const numColor = t.isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.12)';
+
+  return `
+    <div class="slide-inner" style="background:${t.bg};color:${t.fg};font-family:${t.bFont}">
+      <div style="display:flex;flex-direction:column;width:100%;height:100%;padding:80px;gap:28px;text-align:${ta};justify-content:${jc};align-items:stretch;overflow:hidden">
+        ${content}
+      </div>
+      <div style="position:absolute;bottom:32px;right:48px;font-size:18px;color:${numColor};font-family:${t.hFont};font-weight:500;font-variant-numeric:tabular-nums">${index+1} / ${total}</div>
+    </div>`;
+}
+
+// ── Preview chrome helpers ────────────────────────────────────────────────────
+
+function slideBadges(el) {
+  const badges = [];
+  const h = hAttr(el);
+  const v = vAttr(el);
+  if (h) badges.push(`<span class="s-badge s-badge-align">h:${esc(h)}</span>`);
+  if (v) badges.push(`<span class="s-badge s-badge-align">v:${esc(v)}</span>`);
+  const tr = el.getAttribute('transition');
+  if (tr) badges.push(`<span class="s-badge s-badge-trans">↳ ${esc(tr)}</span>`);
+  return badges.join('');
+}
+
+// ── Scale slides ──────────────────────────────────────────────────────────────
+
+function scaleSlides() {
+  document.querySelectorAll('.slide-container').forEach(c => {
+    const scaler = c.querySelector('.slide-scaler');
+    if (!scaler) return;
+    const scale = c.clientWidth / 1280;
+    scaler.style.transform = `scale(${scale})`;
+    c.style.height = `${720 * scale}px`;
+  });
+}
+
+// ── Main render ───────────────────────────────────────────────────────────────
+
+function render() {
+  const raw     = editor.getValue();
+  const preview = document.getElementById('preview');
+  const status  = document.getElementById('status');
+  const info    = document.getElementById('deck-info');
+
+  let doc;
+  try {
+    doc = new DOMParser().parseFromString(raw, 'application/xml');
+    const err = doc.querySelector('parsererror');
+    if (err) throw new Error(err.textContent.split('\n').slice(0,3).join(' ').trim());
+  } catch(e) {
+    status.textContent = '⚠ ' + e.message.slice(0, 90);
+    status.className = 'err';
+    preview.innerHTML = `<div class="parse-error">${esc(e.message)}</div>`;
+    info.textContent = 'parse error';
+    return;
+  }
+
+  const deck = doc.querySelector('deck');
+  if (!deck) {
+    status.textContent = '⚠ No <deck> element';
+    status.className = 'err';
+    preview.innerHTML = `<div class="parse-error">No &lt;deck&gt; element found.</div>`;
+    return;
+  }
+
+  const themeName = deck.getAttribute('theme') || 'minimal';
+  const theme     = THEMES[themeName] || THEMES.minimal;
+  const slides    = [...deck.querySelectorAll(':scope > slide')];
+  const metaTitle = txt(deck.querySelector('meta > title'));
+
+  status.textContent = '';
+  status.className   = '';
+
+  const titlePart = metaTitle ? `"${metaTitle}"` : 'untitled deck';
+  info.textContent = `${titlePart}  ·  ${slides.length} slide${slides.length !== 1?'s':''}  ·  theme:${themeName}`;
+
+  if (!slides.length) {
+    preview.innerHTML = `<div class="empty-msg">No &lt;slide&gt; elements found</div>`;
+    return;
+  }
+
+  preview.innerHTML = slides.map((slide, i) => `
+    <div class="slide-wrapper">
+      <div class="slide-meta">
+        <span class="s-num">${String(i+1).padStart(2,'0')}</span>
+        <span class="s-badge s-badge-dim">slide</span>
+        ${slideBadges(slide)}
+      </div>
+      <div class="slide-container">
+        <div class="slide-scaler">
+          ${renderSlide(slide, theme, i, slides.length)}
+        </div>
+      </div>
+    </div>`).join('');
+
+  requestAnimationFrame(scaleSlides);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+const editor = CodeMirror(document.getElementById('editor-wrap'), {
+  value:          DEFAULT_XML,
+  mode:           'xml',
+  theme:          'material-darker',
+  lineNumbers:    true,
+  lineWrapping:   false,
+  tabSize:        2,
+  indentWithTabs: false,
+  autofocus:      true,
+  autoCloseTags:  true,
+  extraKeys: {
+    'Ctrl-Enter':  () => render(),
+    'Cmd-Enter':   () => render(),
+    'Tab':         cm => cm.execCommand('indentMore'),
+    'Shift-Tab':   cm => cm.execCommand('indentLess'),
+  },
+});
+
+let renderTimer;
+editor.on('change', () => {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(render, 380);
+});
+
+new ResizeObserver(scaleSlides).observe(document.getElementById('preview-scroll'));
+render();
+</script>
+</body>
+</html>

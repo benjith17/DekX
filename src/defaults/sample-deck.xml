@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deck theme="dark">
+
+  <meta>
+    <title>Product Launch 2026</title>
+    <author>Jane Smith</author>
+  </meta>
+
+  <!-- h="center" v="middle" — classic title slide -->
+  <slide h="center" v="middle">
+    <h1>Product Launch 2026</h1>
+    <subtitle>A new era begins</subtitle>
+  </slide>
+
+  <!-- Section divider: vertically middled, accent underline on heading -->
+  <slide v="middle" transition="fade">
+    <h2 accent="true">Performance</h2>
+    <subtitle>The numbers that matter</subtitle>
+  </slide>
+
+  <!-- Stats in a flex row, heading centred -->
+  <slide v="middle" transition="slide">
+    <h2 h="center">By the numbers</h2>
+    <flex>
+      <stat value="£4.2M" label="Revenue"    trend="up"   />
+      <stat value="34%"   label="Growth YoY" trend="up"   />
+      <stat value="72"    label="NPS Score"  trend="flat" />
+    </flex>
+  </slide>
+
+  <!-- Standard content: heading with accent bar + bullet list -->
+  <slide>
+    <h2 accent="true">Key initiatives</h2>
+    <ul>
+      <li>Launched product line in 3 new markets</li>
+      <li>Reduced churn by 12% through onboarding improvements</li>
+      <li>Shipped mobile app v2.0 ahead of schedule</li>
+    </ul>
+  </slide>
+
+  <!-- Two columns via flex + col -->
+  <slide>
+    <h2 accent="true">Q4 review</h2>
+    <flex>
+      <col>
+        <h3>Wins</h3>
+        <ul type="check">
+          <li>Enterprise tier launched</li>
+          <li>API v2 stable</li>
+          <li>Onboarding redesigned</li>
+        </ul>
+      </col>
+      <col>
+        <h3>Q1 focus</h3>
+        <ul type="number">
+          <li>Expand to APAC</li>
+          <li>SOC 2 certification</li>
+          <li>Platform mobile app</li>
+        </ul>
+      </col>
+    </flex>
+  </slide>
+
+  <!-- Three columns, top-aligned, equal weights -->
+  <slide>
+    <h2 accent="true">Timeline</h2>
+    <flex v="top">
+      <col weight="1">
+        <h3>Q1</h3>
+        <p>Kick off APAC expansion and begin SOC 2 audit process.</p>
+      </col>
+      <col weight="1">
+        <h3>Q2</h3>
+        <p>Launch mobile platform. Complete certification by end of quarter.</p>
+      </col>
+      <col weight="1">
+        <h3>Q3</h3>
+        <p>Evaluate EMEA opportunity. Scale support team to match growth.</p>
+      </col>
+    </flex>
+  </slide>
+
+  <!-- Centred pull quote -->
+  <slide h="center" v="middle">
+    <quote author="Head of Product">
+      The best quarter we have ever shipped. The team executed flawlessly.
+    </quote>
+  </slide>
+
+  <!-- Code slide -->
+  <slide>
+    <h2 accent="true">New API endpoint</h2>
+    <code lang="typescript">
+const data = await api.query({
+  filter: 'active',
+  from:   '2025-10-01',
+  limit:  100,
+});
+
+console.log(data.results);
+    </code>
+  </slide>
+
+  <!-- Right-aligned outro -->
+  <slide h="right" v="middle">
+    <h1>Thank you</h1>
+    <subtitle>jane@example.com</subtitle>
+  </slide>
+
+</deck>

@@ -1,0 +1,35 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #141414;
+  color: #c0c0c0;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.pane-label {
+  height: 26px;
+  background: #0f0f0f;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
