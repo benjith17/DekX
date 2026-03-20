@@ -4,6 +4,9 @@ import { dedent } from '../utils/dedent'
 
 registerElement({
   tags: ['code'],
+  schema: {
+    attributes: ['lang'],
+  },
 
   render(el, ctx) {
     const t = ctx.theme

@@ -3,6 +3,9 @@ import { esc, txt, hAttr } from '../utils/escape'
 
 registerElement({
   tags: ['subtitle'],
+  schema: {
+    attributes: [{ name: 'h', values: ['left', 'center', 'right'] }],
+  },
 
   render(el, ctx) {
     const h = hAttr(el)

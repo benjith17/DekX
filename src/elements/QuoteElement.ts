@@ -3,6 +3,9 @@ import { esc, txt, hAttr } from '../utils/escape'
 
 registerElement({
   tags: ['quote'],
+  schema: {
+    attributes: ['author', { name: 'h', values: ['left', 'center', 'right'] }],
+  },
 
   render(el, ctx) {
     const t = ctx.theme

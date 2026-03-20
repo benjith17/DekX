@@ -70,7 +70,7 @@ watch(
   background: transparent;
 }
 #preview-scroll::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: #3a3a3a;
   border-radius: 2px;
 }
 #preview-scroll::-webkit-scrollbar-thumb:hover {
@@ -82,6 +82,6 @@ watch(
   text-align: center;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
-  color: #2d2d2d;
+  color: #6b6b6b;
 }
 </style>

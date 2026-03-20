@@ -3,6 +3,10 @@ import { esc } from '../utils/escape'
 
 registerElement({
   tags: ['image'],
+  schema: {
+    attributes: ['src', 'alt', 'caption'],
+    selfClosing: true,
+  },
 
   render(el, ctx) {
     const t = ctx.theme

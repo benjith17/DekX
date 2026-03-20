@@ -22,7 +22,7 @@ const statusText = computed(() =>
 
 <template>
   <div id="header">
-    <span class="logo">Deck<em>ML</em></span>
+    <span class="logo">Dek<em>X</em></span>
     <div class="vr"></div>
     <span id="deck-info">{{ deckInfo }}</span>
     <button
@@ -65,13 +65,13 @@ const statusText = computed(() =>
 .vr {
   width: 1px;
   height: 14px;
-  background: #252525;
+  background: #3a3a3a;
 }
 
 #deck-info {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
-  color: #454545;
+  color: #737373;
 }
 
 .present-btn {
@@ -101,7 +101,7 @@ const statusText = computed(() =>
 #status {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
-  color: #454545;
+  color: #737373;
   transition: color 0.2s;
 }
 

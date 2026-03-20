@@ -3,6 +3,10 @@ import { esc, txt } from '../utils/escape'
 
 registerElement({
   tags: ['ul'],
+  schema: {
+    attributes: [{ name: 'type', values: ['bullet', 'number', 'check'] }],
+    children: ['li', 'item'],
+  },
 
   render(el, ctx) {
     const t = ctx.theme

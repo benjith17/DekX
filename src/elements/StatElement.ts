@@ -24,6 +24,14 @@ function renderStatCard(el: Element, t: import('../types/theme').ThemeConfig): s
 
 registerElement({
   tags: ['stat'],
+  schema: {
+    attributes: [
+      'value',
+      'label',
+      { name: 'trend', values: ['up', 'down', 'flat'] },
+    ],
+    selfClosing: true,
+  },
 
   render(el, ctx) {
     return renderStatCard(el, ctx.theme)
@@ -32,6 +40,9 @@ registerElement({
 
 registerElement({
   tags: ['stats'],
+  schema: {
+    children: ['stat'],
+  },
 
   render(el, ctx) {
     const statEls = [...el.querySelectorAll('stat')]

@@ -3,6 +3,15 @@ import { hAttr, vAttr, visibleChildren } from '../utils/escape'
 
 registerElement({
   tags: ['flex'],
+  schema: {
+    attributes: [
+      { name: 'h', values: ['left', 'center', 'right'] },
+      { name: 'v', values: ['top', 'middle', 'bottom'] },
+      'gap',
+      'dividers',
+    ],
+    children: ['col', 'stat', 'h1', 'h2', 'h3', 'subtitle', 'p', 'ul', 'code', 'quote', 'image', 'divider'],
+  },
 
   render(el, ctx) {
     const t = ctx.theme
@@ -73,6 +82,14 @@ registerElement({
 // col is a no-op outside of flex — handled inline above
 registerElement({
   tags: ['col'],
+  schema: {
+    attributes: [
+      'weight',
+      { name: 'h', values: ['left', 'center', 'right'] },
+      { name: 'v', values: ['top', 'middle', 'bottom'] },
+    ],
+    children: ['h1', 'h2', 'h3', 'subtitle', 'p', 'ul', 'code', 'quote', 'image', 'divider', 'stat'],
+  },
   render() {
     return ''
   },

@@ -6,7 +6,14 @@ export interface RenderContext {
   renderChildren: (parent: Element) => string
 }
 
+export interface ElementSchema {
+  attributes?: readonly (string | { name: string; values?: readonly string[] })[]
+  children?: readonly string[]
+  selfClosing?: boolean
+}
+
 export interface ElementRenderer {
   tags: string[]
+  schema?: ElementSchema
   render(el: Element, ctx: RenderContext): string
 }

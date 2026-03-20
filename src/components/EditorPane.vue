@@ -5,6 +5,8 @@ import { EditorView, keymap } from '@codemirror/view'
 import { basicSetup } from 'codemirror'
 import { xml } from '@codemirror/lang-xml'
 import { oneDark } from '@codemirror/theme-one-dark'
+import '../elements'
+import { getElementSpecs } from '../elements/registry'
 
 const props = defineProps<{ modelValue: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -21,7 +23,7 @@ onMounted(() => {
     doc: props.modelValue,
     extensions: [
       basicSetup,
-      xml(),
+      xml({ elements: getElementSpecs() }),
       oneDark,
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
@@ -48,7 +50,7 @@ onMounted(() => {
           borderRight: '1px solid #1e1e1e',
         },
         '.cm-lineNumbers .cm-gutterElement': {
-          color: '#383838',
+          color: '#5a5a5a',
           fontSize: '11px',
         },
       }),
@@ -114,7 +116,7 @@ onUnmounted(() => {
   padding: 0 14px;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9.5px;
-  color: #333;
+  color: #6b6b6b;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   flex-shrink: 0;

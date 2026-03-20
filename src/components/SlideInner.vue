@@ -109,7 +109,7 @@ const slideBadges = computed(() => {
 .s-num {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
-  color: #2e2e2e;
+  color: #6b6b6b;
   min-width: 20px;
 }
 
@@ -122,8 +122,8 @@ const slideBadges = computed(() => {
 }
 
 :deep(.s-badge-dim) {
-  color: #323232;
-  border: 1px solid #222;
+  color: #6b6b6b;
+  border: 1px solid #444;
 }
 
 :deep(.s-badge-align) {

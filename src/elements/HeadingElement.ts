@@ -9,6 +9,9 @@ const HEADING_STYLES: Record<string, { size: number; weight: number; lineHeight:
 
 registerElement({
   tags: ['h1', 'h2', 'h3'],
+  schema: {
+    attributes: [{ name: 'h', values: ['left', 'center', 'right'] }, 'accent'],
+  },
 
   render(el, ctx) {
     const tag = el.tagName.toLowerCase()
