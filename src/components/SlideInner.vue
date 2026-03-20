@@ -25,7 +25,14 @@ const slideHtml = computed(() => {
     .join('')
 })
 
-const textAlign = computed(() => hAttr(props.slideEl) || 'left')
+const textAlign = computed(() => (hAttr(props.slideEl) || 'left') as 'left' | 'center' | 'right')
+
+const alignItems = computed(() => {
+  const h = hAttr(props.slideEl)
+  if (h === 'center') return 'center'
+  if (h === 'right') return 'flex-end'
+  return 'stretch'
+})
 
 const justifyContent = computed(() => {
   const v = vAttr(props.slideEl)
@@ -55,7 +62,7 @@ const slideBadges = computed(() => {
   <div class="slide-wrapper">
     <div class="slide-meta">
       <span class="s-num">{{ String(index + 1).padStart(2, '0') }}</span>
-      <span class="s-badge s-badge-dim">slide</span>
+      <!-- <span class="s-badge s-badge-dim">slide</span> -->
       <span v-html="slideBadges"></span>
     </div>
     <div class="slide-container">
@@ -73,6 +80,7 @@ const slideBadges = computed(() => {
             :style="{
               textAlign,
               justifyContent,
+              alignItems,
             }"
             v-html="slideHtml"
           ></div>
@@ -95,54 +103,53 @@ const slideBadges = computed(() => {
 .slide-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .slide-meta {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 0 3px;
+  gap: 8px;
+  padding: 0 4px;
   flex-wrap: wrap;
 }
 
 .s-num {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: #6b6b6b;
-  min-width: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #808090;
+  min-width: 22px;
 }
 
 :deep(.s-badge) {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  padding: 1px 6px;
-  border-radius: 2px;
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin: 2px;
 }
 
 :deep(.s-badge-dim) {
-  color: #6b6b6b;
-  border: 1px solid #444;
+  color: #808090;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 :deep(.s-badge-align) {
-  color: #4a7ca5;
-  border: 1px solid rgba(74, 124, 165, 0.3);
+  color: #7baed4;
+  background: rgba(123, 174, 212, 0.08);
 }
 
 :deep(.s-badge-trans) {
-  color: #7b6cf8;
-  border: 1px solid rgba(123, 108, 248, 0.3);
+  color: #9b8fff;
+  background: rgba(123, 108, 248, 0.1);
 }
 
 .slide-container {
   width: 100%;
   overflow: hidden;
-  border-radius: 3px;
+  border-radius: 8px;
   box-shadow:
-    0 2px 24px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.03);
+    0 4px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .slide-scaler {

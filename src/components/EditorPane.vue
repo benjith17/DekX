@@ -37,21 +37,40 @@ onMounted(() => {
         '&': {
           height: '100%',
           fontFamily: "'IBM Plex Mono', Consolas, monospace",
-          fontSize: '13px',
+          fontSize: '13.5px',
         },
-        '.cm-scroller': { overflow: 'auto' },
-        '.cm-content': { lineHeight: '1.75' },
+        '.cm-scroller': {
+          overflow: 'auto',
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255,255,255,0.1) transparent',
+        },
+        '.cm-scroller::-webkit-scrollbar': { width: '5px', height: '5px' },
+        '.cm-scroller::-webkit-scrollbar-track': { background: 'transparent' },
+        '.cm-scroller::-webkit-scrollbar-thumb': {
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '3px',
+        },
+        '.cm-scroller::-webkit-scrollbar-thumb:hover': {
+          background: 'rgba(255,255,255,0.18)',
+        },
+        '.cm-content': { lineHeight: '1.7', padding: '8px 0' },
         '.cm-cursor': { borderLeftColor: '#7B6CF8' },
         '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
           background: 'rgba(123,108,248,0.15) !important',
         },
         '.cm-gutters': {
-          background: '#161616',
-          borderRight: '1px solid #1e1e1e',
+          background: '#14141a',
+          borderRight: '1px solid rgba(255,255,255,0.05)',
         },
         '.cm-lineNumbers .cm-gutterElement': {
-          color: '#5a5a5a',
-          fontSize: '11px',
+          color: '#555566',
+          fontSize: '12px',
+        },
+        '.cm-activeLine': {
+          background: 'rgba(123,108,248,0.04)',
+        },
+        '.cm-activeLineGutter': {
+          background: 'rgba(123,108,248,0.06)',
         },
       }),
       keymap.of([
@@ -87,7 +106,7 @@ onUnmounted(() => {
 
 <template>
   <div id="editor-pane">
-    <div class="pane-label">XML Source</div>
+    <div class="pane-label">Source</div>
     <div id="editor-wrap" ref="editorWrap"></div>
   </div>
 </template>
@@ -96,7 +115,7 @@ onUnmounted(() => {
 #editor-pane {
   width: 45%;
   flex-shrink: 0;
-  border-right: 1px solid #1a1a1a;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -105,20 +124,5 @@ onUnmounted(() => {
 #editor-wrap {
   flex: 1;
   overflow: hidden;
-}
-
-.pane-label {
-  height: 26px;
-  background: #0f0f0f;
-  border-bottom: 1px solid #1a1a1a;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px;
-  color: #6b6b6b;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  flex-shrink: 0;
 }
 </style>

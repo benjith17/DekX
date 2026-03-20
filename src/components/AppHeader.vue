@@ -38,23 +38,23 @@ const statusText = computed(() =>
 
 <style scoped>
 #header {
-  height: 42px;
-  background: #0c0c0c;
-  border-bottom: 1px solid #1e1e1e;
+  height: 48px;
+  background: #131318;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  padding: 0 18px;
+  padding: 0 20px;
   gap: 16px;
   flex-shrink: 0;
   user-select: none;
 }
 
 .logo {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: 0.02em;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #eee;
+  letter-spacing: -0.01em;
 }
 
 .logo em {
@@ -64,33 +64,31 @@ const statusText = computed(() =>
 
 .vr {
   width: 1px;
-  height: 14px;
-  background: #3a3a3a;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 #deck-info {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: #737373;
+  font-size: 13px;
+  color: #808090;
 }
 
 .present-btn {
   margin-left: auto;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 13px;
   font-weight: 500;
   color: #fff;
   background: #7b6cf8;
   border: none;
-  border-radius: 3px;
-  padding: 4px 14px;
+  border-radius: 6px;
+  padding: 6px 18px;
   cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: opacity 0.2s;
+  transition: background 0.15s;
 }
 
 .present-btn:hover:not(:disabled) {
-  opacity: 0.85;
+  background: #6b5ce8;
 }
 
 .present-btn:disabled {
@@ -99,9 +97,8 @@ const statusText = computed(() =>
 }
 
 #status {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: #737373;
+  font-size: 13px;
+  color: #808090;
   transition: color 0.2s;
 }
 

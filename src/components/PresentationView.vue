@@ -36,8 +36,16 @@ const slideHtml = computed(() => {
 })
 
 const textAlign = computed(() =>
-  slideEl.value ? hAttr(slideEl.value) || 'left' : 'left',
+  (slideEl.value ? hAttr(slideEl.value) || 'left' : 'left') as 'left' | 'center' | 'right',
 )
+
+const alignItems = computed(() => {
+  if (!slideEl.value) return 'stretch' as const
+  const h = hAttr(slideEl.value)
+  if (h === 'center') return 'center' as const
+  if (h === 'right') return 'flex-end' as const
+  return 'stretch' as const
+})
 
 const justifyContent = computed(() => {
   if (!slideEl.value) return 'flex-start'
@@ -152,7 +160,7 @@ onUnmounted(() =>
         >
           <div
             class="presentation-slide-content"
-            :style="{ textAlign, justifyContent }"
+            :style="{ textAlign, justifyContent, alignItems }"
             v-html="slideHtml"
           ></div>
           <div

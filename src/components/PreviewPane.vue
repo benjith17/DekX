@@ -51,37 +51,36 @@ watch(
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #141414;
+  background: #1a1a20;
 }
 
 #preview-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 18px 20px 32px;
+  padding: 24px 24px 40px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
 #preview-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 #preview-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 #preview-scroll::-webkit-scrollbar-thumb {
-  background: #3a3a3a;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
 }
 #preview-scroll::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .empty-msg {
-  padding: 48px 20px;
+  padding: 64px 24px;
   text-align: center;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: #6b6b6b;
+  font-size: 14px;
+  color: #808090;
 }
 </style>

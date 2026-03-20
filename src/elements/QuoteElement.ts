@@ -20,6 +20,6 @@ registerElement({
       ${author ? `<div style="font-size:22px;color:${t.fg2};letter-spacing:.01em">— ${esc(author)}</div>` : ''}
     </div>`
 
-    return `<div style="${taStyle}display:flex;flex-direction:column;align-items:inherit">${inner}</div>`
+    return `<div style="${taStyle}display:flex;flex-direction:column">${inner}</div>`
   },
 })

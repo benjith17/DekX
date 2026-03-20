@@ -13,23 +13,22 @@ body {
 }
 
 body {
-  background: #141414;
-  color: #c0c0c0;
+  background: #1a1a20;
+  color: #c8c8d0;
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .pane-label {
-  height: 26px;
-  background: #0f0f0f;
-  border-bottom: 1px solid #1a1a1a;
+  height: 34px;
+  background: #16161c;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  padding: 0 14px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px;
-  color: #6b6b6b;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  padding: 0 16px;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #808090;
   flex-shrink: 0;
 }
