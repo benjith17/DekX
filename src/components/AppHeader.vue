@@ -4,7 +4,8 @@ import { useDeck } from '../composables/useDeck'
 import { usePresentation } from '../composables/usePresentation'
 import { useFileOps } from '../composables/useFileOps'
 
-const { metaTitle, slides, themeName, parseError } = useDeck()
+const { metaTitle, slides, themeName, parseError, availableThemes, setTheme } =
+  useDeck()
 const { startPresentation } = usePresentation()
 const { currentFileName, isDirty, newFile, openFile, saveFile, saveFileAs } =
   useFileOps()
@@ -29,6 +30,7 @@ const statusText = computed(() =>
 <template>
   <div id="header">
     <span class="logo">Dek<em>X</em></span>
+    <span class="logo beta">BETA</span>
     <div class="vr"></div>
     <div class="file-actions">
       <button class="file-btn" @click="newFile">New</button>
@@ -37,7 +39,17 @@ const statusText = computed(() =>
       <button class="file-btn" @click="saveFileAs">Save As</button>
     </div>
     <div class="vr"></div>
+    <span v-if="isDirty" class="unsaved-dot" title="Unsaved changes"></span>
     <span id="deck-info">{{ deckInfo }}</span>
+    <select
+      class="theme-select"
+      :value="themeName"
+      @change="setTheme(($event.target as HTMLSelectElement).value)"
+    >
+      <option v-for="name in availableThemes" :key="name" :value="name">
+        {{ name }}
+      </option>
+    </select>
     <button
       class="present-btn"
       :disabled="!canPresent"
@@ -75,6 +87,23 @@ const statusText = computed(() =>
   font-style: normal;
 }
 
+.beta {
+  font-size: 11px;
+  color: #7b6cf8;
+  border: 1px solid #7b6cf8;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.unsaved-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e0a040;
+  flex-shrink: 0;
+  margin-right: -8px;
+}
+
 .vr {
   width: 1px;
   height: 18px;
@@ -107,6 +136,30 @@ const statusText = computed(() =>
 #deck-info {
   font-size: 13px;
   color: #808090;
+}
+
+.theme-select {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 13px;
+  color: #9898a8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  outline: none;
+}
+
+.theme-select:hover,
+.theme-select:focus {
+  color: #ddd;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-select option {
+  background: #1e1e28;
+  color: #ddd;
 }
 
 .present-btn {

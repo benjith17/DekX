@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { getTheme } from '../themes'
+import { getTheme, themeNames } from '../themes'
 import { txt } from '../utils/escape'
 import type { ThemeConfig } from '../types/theme'
 import DEFAULT_XML from '../defaults/sample-deck.xml?raw'
@@ -36,6 +36,23 @@ const slides = computed(() =>
 
 const metaTitle = computed(() => txt(deck.value?.querySelector('meta > title') ?? null))
 
+const availableThemes = themeNames()
+
+function setTheme(name: string) {
+  const src = xmlSource.value
+  // Replace theme="..." on the <deck> element
+  const replaced = src.replace(
+    /(<deck\b[^>]*\btheme=")([^"]*)/,
+    `$1${name}`,
+  )
+  if (replaced !== src) {
+    xmlSource.value = replaced
+  } else if (src.includes('<deck')) {
+    // <deck> exists but has no theme attribute — add one
+    xmlSource.value = src.replace('<deck', `<deck theme="${name}"`)
+  }
+}
+
 export function useDeck() {
   return {
     xmlSource,
@@ -45,5 +62,7 @@ export function useDeck() {
     theme,
     slides,
     metaTitle,
+    availableThemes,
+    setTheme,
   }
 }

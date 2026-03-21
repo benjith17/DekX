@@ -1,5 +1,6 @@
-import { ref, shallowRef, computed } from 'vue'
+import { ref, shallowRef, computed, onMounted, onUnmounted } from 'vue'
 import { useDeck } from './useDeck'
+import { useToast } from './useToast'
 import DEFAULT_XML from '../defaults/sample-deck.xml?raw'
 
 const currentFileName = ref<string | null>(null)
@@ -7,10 +8,12 @@ const fileHandle = shallowRef<FileSystemFileHandle | null>(null)
 const lastSavedContent = ref<string>(DEFAULT_XML)
 
 const { xmlSource } = useDeck()
+const { show: showToast } = useToast()
 
 const isDirty = computed(() => xmlSource.value !== lastSavedContent.value)
 
-const supportsFileSystem = typeof window !== 'undefined' && 'showSaveFilePicker' in window
+const supportsFileSystem =
+  typeof window !== 'undefined' && 'showSaveFilePicker' in window
 
 const dekxFileTypes = [
   {
@@ -34,12 +37,12 @@ async function saveFileAs(): Promise<void> {
       fileHandle.value = handle
       currentFileName.value = handle.name
       lastSavedContent.value = content
+      showToast(`Saved ${handle.name}`)
     } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'AbortError') return
       throw e
     }
   } else {
-    // Fallback: download via link
     const blob = new Blob([content], { type: 'application/xml' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -48,6 +51,7 @@ async function saveFileAs(): Promise<void> {
     a.click()
     URL.revokeObjectURL(url)
     lastSavedContent.value = content
+    showToast('File downloaded')
   }
 }
 
@@ -61,6 +65,7 @@ async function saveFile(): Promise<void> {
   await writable.write(content)
   await writable.close()
   lastSavedContent.value = content
+  showToast(`Saved ${currentFileName.value}`)
 }
 
 async function openFile(): Promise<void> {
@@ -81,7 +86,6 @@ async function openFile(): Promise<void> {
       throw e
     }
   } else {
-    // Fallback: file input
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.dekx,.xml'
@@ -105,6 +109,21 @@ function newFile(): void {
   lastSavedContent.value = DEFAULT_XML
 }
 
+// beforeunload guard — warns if there are unsaved changes
+function onBeforeUnload(e: BeforeUnloadEvent) {
+  if (isDirty.value) {
+    e.preventDefault()
+  }
+}
+
+function installBeforeUnload() {
+  window.addEventListener('beforeunload', onBeforeUnload)
+}
+
+function removeBeforeUnload() {
+  window.removeEventListener('beforeunload', onBeforeUnload)
+}
+
 export function useFileOps() {
   return {
     currentFileName,
@@ -113,5 +132,7 @@ export function useFileOps() {
     saveFileAs,
     openFile,
     newFile,
+    installBeforeUnload,
+    removeBeforeUnload,
   }
 }
