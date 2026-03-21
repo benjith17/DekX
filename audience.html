@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <title>DekX — Audience</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; overflow: hidden; background: #000; }
+      #audience {
+        width: 100%; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .scaler {
+        width: 1280px; height: 720px;
+        transform-origin: center center;
+        flex-shrink: 0;
+        position: relative;
+      }
+      .slide {
+        width: 1280px; height: 720px;
+        position: absolute; top: 0; left: 0;
+        overflow: hidden;
+      }
+      .slide-content {
+        display: flex; flex-direction: column;
+        width: 100%; height: 100%;
+        padding: 80px; gap: 28px;
+        align-items: stretch; overflow: hidden;
+      }
+      .page-num {
+        position: absolute; bottom: 32px; right: 48px;
+        font-size: 18px; font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+      /* Fade */
+      .slide.t-fade-enter { opacity: 0; }
+      .slide.t-fade-leave { opacity: 0; }
+      .slide.t-fade-active { transition: opacity 0.35s ease; }
+      /* Slide forward */
+      .slide.t-slide-forward-enter { transform: translateX(100%); }
+      .slide.t-slide-forward-leave { transform: translateX(-100%); }
+      .slide.t-slide-forward-active { transition: transform 0.4s ease; }
+      /* Slide backward */
+      .slide.t-slide-backward-enter { transform: translateX(-100%); }
+      .slide.t-slide-backward-leave { transform: translateX(100%); }
+      .slide.t-slide-backward-active { transition: transform 0.4s ease; }
+    </style>
+  </head>
+  <body>
+    <div id="audience">
+      <div class="scaler" id="scaler"></div>
+    </div>
+    <script type="module" src="/src/audience.ts"></script>
+  </body>
+</html>

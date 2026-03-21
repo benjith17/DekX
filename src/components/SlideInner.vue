@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ThemeConfig } from '../types/theme'
-import { createRenderContext } from '../composables/useParser'
-import { hAttr, vAttr, visibleChildren, esc } from '../utils/escape'
+import { hAttr, vAttr, esc } from '../utils/escape'
+import { renderSlide } from '../utils/renderSlide'
 
 const props = defineProps<{
   slideEl: Element
@@ -11,39 +11,7 @@ const props = defineProps<{
   total: number
 }>()
 
-const resolvedTheme = computed<ThemeConfig>(() => ({
-  ...props.theme,
-  bg: props.slideEl.getAttribute('bg') || props.theme.bg,
-  accent: props.slideEl.getAttribute('accent') || props.theme.accent,
-}))
-
-const slideHtml = computed(() => {
-  const t = resolvedTheme.value
-  const ctx = createRenderContext(t)
-  return visibleChildren(props.slideEl)
-    .map((c) => ctx.renderElement(c))
-    .join('')
-})
-
-const textAlign = computed(() => (hAttr(props.slideEl) || 'left') as 'left' | 'center' | 'right')
-
-const alignItems = computed(() => {
-  const h = hAttr(props.slideEl)
-  if (h === 'center') return 'center'
-  if (h === 'right') return 'flex-end'
-  return 'stretch'
-})
-
-const justifyContent = computed(() => {
-  const v = vAttr(props.slideEl)
-  if (v === 'bottom') return 'flex-end'
-  if (v === 'middle') return 'center'
-  return 'flex-start'
-})
-
-const numColor = computed(() =>
-  resolvedTheme.value.isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.12)',
-)
+const rendered = computed(() => renderSlide(props.slideEl, props.theme))
 
 const slideBadges = computed(() => {
   const el = props.slideEl
@@ -70,25 +38,25 @@ const slideBadges = computed(() => {
         <div
           class="slide-inner"
           :style="{
-            background: resolvedTheme.bg,
-            color: resolvedTheme.fg,
-            fontFamily: resolvedTheme.bFont,
+            background: rendered.theme.bg,
+            color: rendered.theme.fg,
+            fontFamily: rendered.theme.bFont,
           }"
         >
           <div
             class="slide-content"
             :style="{
-              textAlign,
-              justifyContent,
-              alignItems,
+              textAlign: rendered.layout.textAlign,
+              justifyContent: rendered.layout.justifyContent,
+              alignItems: rendered.layout.alignItems,
             }"
-            v-html="slideHtml"
+            v-html="rendered.html"
           ></div>
           <div
             class="slide-page-num"
             :style="{
-              color: numColor,
-              fontFamily: resolvedTheme.hFont,
+              color: rendered.numColor,
+              fontFamily: rendered.theme.hFont,
             }"
           >
             {{ index + 1 }} / {{ total }}

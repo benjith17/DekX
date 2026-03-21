@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useDeck } from '../composables/useDeck'
 import { usePresentation } from '../composables/usePresentation'
 import { useFileOps } from '../composables/useFileOps'
@@ -11,6 +11,7 @@ const { currentFileName, isDirty, newFile, openFile, saveFile, saveFileAs } =
   useFileOps()
 
 const canPresent = computed(() => slides.value.length > 0 && !parseError.value)
+const showPresentMenu = ref(false)
 
 const deckInfo = computed(() => {
   if (parseError.value) return 'parse error'
@@ -50,13 +51,33 @@ const statusText = computed(() =>
         {{ name }}
       </option>
     </select>
-    <button
-      class="present-btn"
-      :disabled="!canPresent"
-      @click="startPresentation"
-    >
-      Present
-    </button>
+    <div class="present-group">
+      <button
+        class="present-btn"
+        :disabled="!canPresent"
+        @click="startPresentation('presenter')"
+      >
+        Present
+      </button>
+      <div class="present-divider"></div>
+      <button
+        class="present-btn present-btn-arrow"
+        :disabled="!canPresent"
+        @click="showPresentMenu = !showPresentMenu"
+      >
+        <span class="arrow-down">&#x25BE;</span>
+      </button>
+      <div v-if="showPresentMenu" class="present-menu" @mouseleave="showPresentMenu = false">
+        <button class="present-menu-item" @click="startPresentation('presenter'); showPresentMenu = false">
+          Presenter view
+          <span class="menu-desc">Opens audience in separate window</span>
+        </button>
+        <button class="present-menu-item" @click="startPresentation('single'); showPresentMenu = false">
+          Single window
+          <span class="menu-desc">Fullscreen in this window</span>
+        </button>
+      </div>
+    </div>
     <span id="status" :class="{ err: parseError }">{{ statusText }}</span>
   </div>
 </template>
@@ -162,18 +183,35 @@ const statusText = computed(() =>
   color: #ddd;
 }
 
-.present-btn {
+.present-group {
   margin-left: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.present-btn {
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: #fff;
   background: #7b6cf8;
   border: none;
-  border-radius: 6px;
-  padding: 6px 18px;
+  padding: 6px 16px;
   cursor: pointer;
   transition: background 0.15s;
+  border-radius: 6px 0 0 6px;
+}
+
+.present-btn-arrow {
+  border-radius: 0 6px 6px 0;
+  padding: 6px 8px;
+}
+
+.present-divider {
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .present-btn:hover:not(:disabled) {
@@ -183,6 +221,52 @@ const statusText = computed(() =>
 .present-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+.arrow-down {
+  font-size: 12px;
+}
+
+.present-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  background: #1e1e28;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 220px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.present-menu-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ddd;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.present-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.menu-desc {
+  font-size: 11px;
+  font-weight: 400;
+  color: #808090;
 }
 
 #status {

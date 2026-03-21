@@ -2,9 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { useDeck } from '../composables/useDeck'
 import { usePresentation } from '../composables/usePresentation'
-import { createRenderContext } from '../composables/useParser'
-import { hAttr, vAttr, visibleChildren } from '../utils/escape'
-import type { ThemeConfig } from '../types/theme'
+import { renderSlide } from '../utils/renderSlide'
 
 const { slides, theme } = useDeck()
 const {
@@ -18,46 +16,10 @@ const {
 
 const slideEl = computed(() => slides.value[currentSlide.value] ?? null)
 
-const resolvedTheme = computed<ThemeConfig>(() => {
-  if (!slideEl.value) return theme.value
-  return {
-    ...theme.value,
-    bg: slideEl.value.getAttribute('bg') || theme.value.bg,
-    accent: slideEl.value.getAttribute('accent') || theme.value.accent,
-  }
+const rendered = computed(() => {
+  if (!slideEl.value) return null
+  return renderSlide(slideEl.value, theme.value)
 })
-
-const slideHtml = computed(() => {
-  if (!slideEl.value) return ''
-  const ctx = createRenderContext(resolvedTheme.value)
-  return visibleChildren(slideEl.value)
-    .map((c) => ctx.renderElement(c))
-    .join('')
-})
-
-const textAlign = computed(() =>
-  (slideEl.value ? hAttr(slideEl.value) || 'left' : 'left') as 'left' | 'center' | 'right',
-)
-
-const alignItems = computed(() => {
-  if (!slideEl.value) return 'stretch' as const
-  const h = hAttr(slideEl.value)
-  if (h === 'center') return 'center' as const
-  if (h === 'right') return 'flex-end' as const
-  return 'stretch' as const
-})
-
-const justifyContent = computed(() => {
-  if (!slideEl.value) return 'flex-start'
-  const v = vAttr(slideEl.value)
-  if (v === 'bottom') return 'flex-end'
-  if (v === 'middle') return 'center'
-  return 'flex-start'
-})
-
-const numColor = computed(() =>
-  resolvedTheme.value.isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.12)',
-)
 
 // When going forward, the incoming slide defines the transition.
 // When going backward, the slide we just left defines it (currentSlide + 1 after decrement).
@@ -150,22 +112,27 @@ onUnmounted(() =>
     >
       <Transition :name="transitionName">
         <div
+          v-if="rendered"
           :key="currentSlide"
           class="presentation-slide"
           :style="{
-            background: resolvedTheme.bg,
-            color: resolvedTheme.fg,
-            fontFamily: resolvedTheme.bFont,
+            background: rendered.theme.bg,
+            color: rendered.theme.fg,
+            fontFamily: rendered.theme.bFont,
           }"
         >
           <div
             class="presentation-slide-content"
-            :style="{ textAlign, justifyContent, alignItems }"
-            v-html="slideHtml"
+            :style="{
+              textAlign: rendered.layout.textAlign,
+              justifyContent: rendered.layout.justifyContent,
+              alignItems: rendered.layout.alignItems,
+            }"
+            v-html="rendered.html"
           ></div>
           <div
             class="presentation-page-num"
-            :style="{ color: numColor, fontFamily: resolvedTheme.hFont }"
+            :style="{ color: rendered.numColor, fontFamily: rendered.theme.hFont }"
           >
             {{ currentSlide + 1 }} / {{ totalSlides }}
           </div>
