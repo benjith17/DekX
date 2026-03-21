@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
+import { ref, onMounted, onUnmounted, shallowRef, watch } from 'vue'
 import { EditorState } from '@codemirror/state'
 import { EditorView, keymap } from '@codemirror/view'
 import { basicSetup } from 'codemirror'
@@ -97,6 +97,20 @@ onMounted(() => {
     parent: editorWrap.value,
   })
 })
+
+// Sync external content changes (e.g. file open) into the editor
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (!view.value) return
+    const current = view.value.state.doc.toString()
+    if (newVal !== current) {
+      view.value.dispatch({
+        changes: { from: 0, to: current.length, insert: newVal },
+      })
+    }
+  },
+)
 
 onUnmounted(() => {
   clearTimeout(debounceTimer)

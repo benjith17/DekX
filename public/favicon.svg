@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-miterlimit:3;">
+    <rect id="Artboard1" x="0" y="0" width="1024" height="1024" style="fill:none;"/>
+    <g id="Artboard11" serif:id="Artboard1">
+        <g transform="matrix(1.091129,0,0,1.519093,-58.365162,-101.922394)">
+            <path d="M874.991,261.05L874.991,657.159L385.514,657.36L385.514,540.877L170.467,540.642L170.467,151.116L659.944,151.116L659.944,260.947L874.991,261.05Z" style="stroke:black;stroke-width:49.65px;"/>
+        </g>
+        <g transform="matrix(1,0,0,1,164.985129,-137.064038)">
+            <g transform="matrix(1.45417,0,0,1.45417,-164.359996,35.397997)">
+                <g transform="matrix(630.371131,0,0,630.371131,391.674833,582.825451)">
+                </g>
+                <text x="124.198px" y="582.825px" style="font-family:'Bahnschrift-Regular', 'Bahnschrift', sans-serif;font-size:630.371px;fill:white;">&lt;</text>
+            </g>
+            <g transform="matrix(1,0,0,1,160.154091,428.121269)">
+                <g transform="matrix(916.666667,0,0,916.666667,517.630637,582.825451)">
+                </g>
+                <text x="124.198px" y="582.825px" style="font-family:'Bahnschrift-Regular', 'Bahnschrift', sans-serif;font-size:916.667px;fill:white;">&gt;</text>
+            </g>
+        </g>
+    </g>
+</svg>
