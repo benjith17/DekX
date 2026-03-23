@@ -1,4 +1,4 @@
-import { ref, shallowRef, computed, onMounted, onUnmounted } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import { useDeck } from './useDeck'
 import { useToast } from './useToast'
 import DEFAULT_XML from '../defaults/sample-deck.xml?raw'

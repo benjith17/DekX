@@ -5,7 +5,7 @@ import { useScaler } from '../composables/useScaler'
 import SlideInner from './SlideInner.vue'
 import ParseError from './ParseError.vue'
 
-const { parseError, theme, slides, metaTitle, themeName } = useDeck()
+const { parseError, theme, slides } = useDeck()
 
 const previewScroll = ref<HTMLElement | null>(null)
 const { scaleAll } = useScaler(previewScroll)

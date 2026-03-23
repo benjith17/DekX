@@ -33,7 +33,7 @@ export function renderSlide(
   const h = hAttr(slideEl)
   const v = vAttr(slideEl)
 
-  const textAlign: SlideLayout['textAlign'] = h || 'left'
+  const textAlign = (h || 'left') as SlideLayout['textAlign']
   const alignItems =
     h === 'center' ? 'center' : h === 'right' ? 'flex-end' : 'stretch'
   const justifyContent =
